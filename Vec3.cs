@@ -71,12 +71,12 @@ namespace Raytracer
             return (v1.X*v2.X) + (v1.Y*v2.Y) + (v1.Z*v2.Z);
         }
 
-        public Vec3 Cross(Vec3 v)
+        public static Vec3 Cross(Vec3 v1, Vec3 v2)
         {
             return new Vec3(
-                (Y*v.Z) - (Z*v.Y),
-                -(X*v.Z) - (Z*v.X),
-                (X*v.Y) - (Y*v.X));
+                (v1.Y * v2.Z - v1.Z * v2.Y),
+			    (-1 * (v1.X * v2.Z - v1.Z * v2.X)),
+			    (v1.X * v2.Y - v1.Y * v2.X));
         }
 
         public Vec3 UnitVector()

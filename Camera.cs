@@ -13,8 +13,11 @@ namespace Raytracer
             double half_width = aspect * half_height;
             Origin = lookFrom;
             w = (lookFrom - lookAt).UnitVector();
-            u = vUp.Cross(w).UnitVector();
-            v = w.Cross(u);
+            Console.WriteLine($"w: {w.X} {w.Y} {w.Z}");
+            u = Vec3.Cross(vUp, w).UnitVector();
+            Console.WriteLine($"u: {u.X} {u.Y} {u.Z}");           
+            v = Vec3.Cross(w, u);
+            Console.WriteLine($"v: {v.X} {v.Y} {v.Z}");
             LowerLeftCorner = Origin - half_width*u - half_height*v - w;
             Horizontal = 2*half_width*u;
             Vertical = 2*half_height*v;
