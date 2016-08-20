@@ -56,22 +56,15 @@ namespace Raytracer
 
          private static Vec3 Colour(Ray r, Hitable world, int depth)
         {
-            var testHit = world.Hit(r, 0.001, Double.MaxValue);
-            if(testHit.Item1)
+            HitRecord rec;
+            if(world.Hit(r, 0.001, Double.MaxValue, out rec))
             {
-                var rec = testHit.Item2;
+                Ray scattered;
+                Vec3 attenuation;
 
-
-                if (depth < 50)
+                if (depth < 50 && rec.Material.Scatter(r, rec, out attenuation, out scattered))
                 {
-                    var scatter = rec.Material.Scatter(r, rec);
-                    if(scatter.Item1)
-                    {
-                        var attenuation = scatter.Item2;
-                        var scattered = scatter.Item3;
-                        return attenuation * Colour(scattered, world, depth+1);
-                    }
-                    return new Vec3(0, 0, 0);
+                    return attenuation * Colour(scattered, world, depth+1);
                 }
                 else
                 {
@@ -87,6 +80,5 @@ namespace Raytracer
                 return ((1.0 - t) * c1) + (t * c2);
             }
         }
-
     }
 }

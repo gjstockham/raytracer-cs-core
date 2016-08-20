@@ -13,7 +13,7 @@ namespace Raytracer
     
     public abstract class Hitable
     {
-        public abstract Tuple<bool, HitRecord> Hit(Ray r, double tmin, double tmax);
+        public abstract bool Hit(Ray r, double tmin, double tmax, out HitRecord rec);
         
     }
 
@@ -21,22 +21,22 @@ namespace Raytracer
     {
         private IList<Hitable> _hitables = new List<Hitable>();
         
-        public override Tuple<bool, HitRecord> Hit(Ray r, double tmin, double tmax)
+        public override bool Hit(Ray r, double tMin, double tMax, out HitRecord rec)
         {
-            HitRecord toReturn = null;
+            HitRecord tempRecord = null;
+            rec = null;
             bool hitAnything = false;
-            double closestSoFar = tmax;
-            foreach (var item in _hitables)
+            double closestSoFar = tMax;
+            foreach (var hitable in _hitables)
             {
-                var hit = item.Hit(r, tmin, closestSoFar);
-                if(hit.Item1)
+                if(hitable.Hit(r, tMin, closestSoFar, out tempRecord))
                 {
                     hitAnything = true;
-                    closestSoFar = hit.Item2.T;
-                    toReturn = hit.Item2;
+                    closestSoFar = tempRecord.T;
+                    rec = tempRecord;
                 }
             }
-            return new Tuple<bool, HitRecord>(hitAnything, toReturn);
+            return hitAnything;
         }
 
         public void Add(Hitable hitable)
@@ -58,9 +58,8 @@ namespace Raytracer
             Material = material;
         }
 
-        public override Tuple<bool, HitRecord> Hit(Ray r, double tMin, double tMax)
+        public override bool Hit(Ray r, double tMin, double tMax, out HitRecord rec)
         {
-            var rec = new HitRecord();
             Vec3 oc = r.Origin - Centre;
             double a = Vec3.Dot(r.Direction, r.Direction);
             double b = Vec3.Dot(oc, r.Direction);
@@ -76,7 +75,7 @@ namespace Raytracer
                     rec.P = r.PointAt(rec.T);
                     rec.Normal = (rec.P - Centre)/Radius;
                     rec.Material = Material;
-                    return new Tuple<bool, HitRecord>(true, rec);
+                    return true;
                 }
                 temp = (-b + Math.Sqrt(b * b - a * c)) / a;
                 if (temp < tMax && temp > tMin)
@@ -86,11 +85,11 @@ namespace Raytracer
                     rec.P = r.PointAt(rec.T);
                     rec.Normal = (rec.P - Centre) / Radius;
                     rec.Material = Material;
-                    return new Tuple<bool, HitRecord>(true, rec);
+                    return true;
                 }
             }
             rec = null;
-            return new Tuple<bool, HitRecord>(false, null);
+            return false;
         }
     }
     

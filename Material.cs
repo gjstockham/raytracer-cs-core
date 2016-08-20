@@ -10,9 +10,11 @@ namespace Raytracer
         {
         }
 
-        public virtual Tuple<bool, Vec3, Ray> Scatter(Ray rayIn, HitRecord rec)
+        public virtual bool Scatter(Ray rayIn, HitRecord rec, out Vec3 attenuation, out Ray scattered)
         {
-            return new Tuple<bool, Vec3, Ray>(false, null, null);
+            attenuation = null;
+            scattered = null;
+            return false;
         }
 
 
@@ -47,15 +49,14 @@ namespace Raytracer
         public Vec3 Albedo { get; set; }
 
 
-        public override Tuple<bool, Vec3, Ray> Scatter(Ray rayIn, HitRecord rec)
+        public override bool Scatter(Ray rayIn, HitRecord rec, out Vec3 attenuation, out Ray scattered)
         {
             var unitVector = rayIn.Direction/rayIn.Direction.Length;
 
             Vec3 reflected = Reflect(unitVector, rec.Normal);
-            var scattered = new Ray(rec.P, reflected + Fuzziness*RandomInUnitSphere());
-            var attenuation = Albedo;
-            var hit =  Vec3.Dot(scattered.Direction, rec.Normal) > 0;
-            return new Tuple<bool, Vec3, Ray>(hit, attenuation, scattered);
+            scattered = new Ray(rec.P, reflected + Fuzziness*RandomInUnitSphere());
+            attenuation = Albedo;
+            return Vec3.Dot(scattered.Direction, rec.Normal) > 0;
         }
 
         public Metal(Vec3 albedo, double fuzziness) : base()
@@ -74,16 +75,15 @@ namespace Raytracer
             RefractionIndex = refractionIndex;
         }
 
-        public override Tuple<bool, Vec3, Ray> Scatter(Ray rayIn, HitRecord rec)
+         public override bool Scatter(Ray rayIn, HitRecord rec, out Vec3 attenuation, out Ray scattered)
         {
             Vec3 outwardNormal;
             var reflected = Reflect(rayIn.Direction, rec.Normal);
             double ni_over_nt;
-            var attenuation = new Vec3(1.0, 1.0, 0);
-            Vec3 refracted = null;
+            attenuation = new Vec3(1.0, 1.0, 0);
+            Vec3 refracted;
             double reflectProbability;
             double cosine;
-            Ray scattered = null;
             if (Vec3.Dot(rayIn.Direction, rec.Normal) > 0)
             {
                 outwardNormal = -1 * rec.Normal;
@@ -96,9 +96,7 @@ namespace Raytracer
                 ni_over_nt = 1.0 / RefractionIndex;
                 cosine = -1 * Vec3.Dot(rayIn.Direction, rec.Normal) / rayIn.Direction.Length;
             }
-            var refract = Refract(rayIn.Direction, outwardNormal, ni_over_nt);
-            refracted = refract.Item2;
-            if (refract.Item1)
+            if (Refract(rayIn.Direction, outwardNormal, ni_over_nt, out refracted))
             {
                 reflectProbability = Schlick(cosine, RefractionIndex);
             }
@@ -115,20 +113,21 @@ namespace Raytracer
             {
                 scattered = new Ray(rec.P, refracted);
             }
-            return new Tuple<bool, Vec3, Ray>(true, refracted, scattered);
+            return true;
         }
 
-        private Tuple<bool, Vec3> Refract(Vec3 v, Vec3 n, double ni_over_nt)
+        private bool Refract(Vec3 v, Vec3 n, double ni_over_nt, out Vec3 refracted)
         {
             var uv = v / v.Length;
             var dt = Vec3.Dot(uv, n);
             var discriminant = 1.0 - ni_over_nt*ni_over_nt*(1 - dt*dt);
             if (discriminant > 0)
             {
-                var refracted = ni_over_nt*(v - n*dt) - n*Math.Sqrt(discriminant);
-                return new Tuple<bool, Vec3>(true, refracted);
+                refracted = ni_over_nt*(v - n*dt) - n*Math.Sqrt(discriminant);
+                return true;
             }
-            return new Tuple<bool, Vec3>(false, null);
+            refracted = null;
+            return false;
         }
 
         private double Schlick(double cosine, double refractiveIndex)
@@ -148,12 +147,12 @@ namespace Raytracer
             Albedo = albedo;
         }
 
-        public override Tuple<bool, Vec3, Ray> Scatter(Ray rayIn, HitRecord rec)
+        public override bool Scatter(Ray rayIn, HitRecord rec, out Vec3 attenuation, out Ray scattered)
         {
             var target = rec.P + rec.Normal + RandomInUnitSphere();
-            var scattered = new Ray(rec.P, target - rec.P);
-            var attenuation = Albedo;
-            return new Tuple<bool, Vec3, Ray>(true, attenuation, scattered);
-        }      
+            scattered = new Ray(rec.P, target - rec.P);
+            attenuation = Albedo;
+            return true;
+        }    
     }
 }
