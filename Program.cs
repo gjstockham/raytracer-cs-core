@@ -22,7 +22,11 @@ namespace Raytracer
                 world.Add(new Sphere(new Vec3(0, -100.5, -1), 100, new Lambertian(new Vec3(0.8, 0.8, 0))));
                 world.Add(new Sphere(new Vec3(1, 0, -1), 0.5, new Metal(new Vec3(0.8, 0.6, 0.2), 0.3)));
                 world.Add(new Sphere(new Vec3(-1, 0, -1), 0.5, new Dielectric(1.5)));
-                var camera = new Camera(new Vec3(-2, 2, 1), new Vec3(0, 0, -1), new Vec3(0, 1, 0), 20, (double)nx/(double)ny);
+                var lookFrom = new Vec3(3, 3, 2);
+                var lookAt = new Vec3(0, 0, -1);
+                double distToFocus = (lookFrom - lookAt).Length;
+                double aperture = 2.0;
+                var camera = new Camera(lookFrom, lookAt, new Vec3(0, 1, 0), 20, (double)nx/(double)ny, aperture, distToFocus);
                 Console.WriteLine($"Camera.Origin: {camera.Origin.X} {camera.Origin.Y} {camera.Origin.Z}");
                 Console.WriteLine($"Camera.Horizontal: {camera.Horizontal.X} {camera.Horizontal.Y} {camera.Horizontal.Z}");
                 Console.WriteLine($"Camera.Vertical: {camera.Vertical.X} {camera.Vertical.Y} {camera.Vertical.Z}");
