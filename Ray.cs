@@ -12,7 +12,7 @@ namespace Raytracer
 
         public Vec3 PointAt(double t)
         {
-            return Origin + (t*Direction);
+            return Origin + (Direction*t);
         }  
     }
 

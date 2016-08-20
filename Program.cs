@@ -20,10 +20,13 @@ namespace Raytracer
                 var world = new HitableList();
                 world.Add(new Sphere(new Vec3(0, 0, -1), 0.5, new Lambertian(new Vec3(0.1, 0.2, 0.5))));
                 world.Add(new Sphere(new Vec3(0, -100.5, -1), 100, new Lambertian(new Vec3(0.8, 0.8, 0))));
-                world.Add(new Sphere(new Vec3(1, 0, -1), 0.5, new Metal(new Vec3(0.1, 0.2, 0.5), 0.3)));
+                world.Add(new Sphere(new Vec3(1, 0, -1), 0.5, new Metal(new Vec3(0.8, 0.6, 0.2), 0.3)));
                 world.Add(new Sphere(new Vec3(-0, 0, -1), 0.5, new Dielectric(1.5)));
-                var camera = new Camera(new Vec3(-2, 2, 1), new Vec3(0, 0, -1), new Vec3(0, 1, 0), 20, (double)nx/(double)nx);
-
+                var camera = new Camera(new Vec3(0, 0, 5), new Vec3(0, 0, -1), new Vec3(0, 1, 0), 20, (double)nx/(double)ny);
+                Console.WriteLine($"Camera.Origin: {camera.Origin.X} {camera.Origin.Y} {camera.Origin.Z}");
+                Console.WriteLine($"Camera.Horizontal: {camera.Horizontal.X} {camera.Horizontal.Y} {camera.Horizontal.Z}");
+                Console.WriteLine($"Camera.Vertical: {camera.Vertical.X} {camera.Vertical.Y} {camera.Vertical.Z}");
+                Console.WriteLine($"Camera.LowerLeftCorner: {camera.LowerLeftCorner.X} {camera.LowerLeftCorner.Y} {camera.LowerLeftCorner.Z}");
                 for (int j = ny-1; j >= 0; j--)
                 {
                     for (int i = 0; i < nx; i++)
@@ -46,7 +49,7 @@ namespace Raytracer
                         int ib = (int)(255.99 * colour.B);
                         file.WriteLine($"{ir} {ig} {ib}");
                     }
-                         Console.WriteLine($"Row: {j}");
+                    //Console.WriteLine($"Row: {j}");
                }
             }
         }
